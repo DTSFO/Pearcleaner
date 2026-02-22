@@ -4,12 +4,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_PATH="$REPO_ROOT/Pearcleaner.xcodeproj"
-SCHEME="Pearcleaner"
+TARGET="Pearcleaner"
 
 BUILD_ROOT="${BUILD_ROOT:-$REPO_ROOT/.build-macos12}"
-ARCHIVE_PATH="$BUILD_ROOT/Pearcleaner-macos12.xcarchive"
 OUTPUT_DIR="${OUTPUT_DIR:-$REPO_ROOT/Builds/output-macos12}"
-APP_PATH="$ARCHIVE_PATH/Products/Applications/Pearcleaner.app"
+DERIVED_DATA_PATH="$BUILD_ROOT/DerivedData"
+APP_PATH="$DERIVED_DATA_PATH/Build/Products/Release/Pearcleaner.app"
 ZIP_PATH="$OUTPUT_DIR/Pearcleaner-macos12-unsigned.zip"
 DMG_PATH="$OUTPUT_DIR/Pearcleaner-macos12-unsigned.dmg"
 
@@ -19,15 +19,19 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
 fi
 
 mkdir -p "$BUILD_ROOT" "$OUTPUT_DIR"
-rm -rf "$ARCHIVE_PATH" "$OUTPUT_DIR/Pearcleaner.app" "$ZIP_PATH" "$DMG_PATH"
+rm -rf "$DERIVED_DATA_PATH" "$OUTPUT_DIR/Pearcleaner.app" "$ZIP_PATH" "$DMG_PATH"
 
 xcodebuild \
   -project "$PROJECT_PATH" \
-  -scheme "$SCHEME" \
+  -resolvePackageDependencies
+
+xcodebuild \
+  -project "$PROJECT_PATH" \
+  -target "$TARGET" \
   -configuration Release \
   -destination "generic/platform=macOS" \
-  -archivePath "$ARCHIVE_PATH" \
-  clean archive \
+  -derivedDataPath "$DERIVED_DATA_PATH" \
+  clean build \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   ENABLE_HARDENED_RUNTIME=NO \
