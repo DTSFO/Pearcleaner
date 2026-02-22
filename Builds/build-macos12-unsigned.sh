@@ -5,6 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_PATH="$REPO_ROOT/Pearcleaner.xcodeproj"
 TARGET="Pearcleaner"
+HELPER_TARGET="PearcleanerHelper"
+SENTINEL_TARGET="PearcleanerSentinel"
 
 BUILD_ROOT="${BUILD_ROOT:-$REPO_ROOT/.build-macos12}"
 OUTPUT_DIR="${OUTPUT_DIR:-$REPO_ROOT/Builds/output-macos12}"
@@ -27,10 +29,23 @@ xcodebuild \
 
 xcodebuild \
   -project "$PROJECT_PATH" \
-  -target "$TARGET" \
+  -target "$HELPER_TARGET" \
+  -target "$SENTINEL_TARGET" \
   -configuration Release \
   -destination "generic/platform=macOS" \
   clean build \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
+  ENABLE_HARDENED_RUNTIME=NO \
+  MACOSX_DEPLOYMENT_TARGET=12.0 \
+  CONFIGURATION_BUILD_DIR="$PRODUCTS_DIR"
+
+xcodebuild \
+  -project "$PROJECT_PATH" \
+  -target "$TARGET" \
+  -configuration Release \
+  -destination "generic/platform=macOS" \
+  build \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   ENABLE_HARDENED_RUNTIME=NO \
