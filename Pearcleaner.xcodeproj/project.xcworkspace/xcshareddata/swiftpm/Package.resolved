@@ -4,10 +4,9 @@
     {
       "identity" : "alinfoundation",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/alienator88/AlinFoundation",
+      "location" : "https://github.com/DTSFO/AlinFoundation",
       "state" : {
-        "branch" : "main",
-        "revision" : "f61241c2ea1856ef41cbfc965afe9d756121456f"
+        "revision" : "8c0ec974fd634ebf0db7638addf407431f7af377"
       }
     },
     {

@@ -76,12 +76,13 @@ This project was born out of wanting to learn more on how macOS deals with app i
 
 | macOS Version | Codename | Supported |
 |---------------|----------|-----------|
+| 12.x          | Monterey | ✅*       |
 | 13.x          | Ventura  | ✅        |
 | 14.x          | Sonoma   | ✅        |
 | 15.x          | Sequoia  | ✅        |
 | 26.x          | Tahoe    | ✅        |
 | TBD           | Beta     | ❌        |
-> Versions prior to macOS 13.0 are not supported due to missing Swift/SwiftUI APIs required by the app.
+> \* macOS 12 support is maintained in the `macos12-support` branch and uses compatibility shims plus a pinned AlinFoundation dependency.
 
 ## Getting Pearcleaner
 
@@ -98,6 +99,20 @@ You can add the app via Homebrew:
 ```
 brew install --cask pearcleaner
 ```
+</details>
+
+<details>
+  <summary>macOS 12 (Monterey) from source</summary>
+
+Use the `macos12-support` branch and run:
+```
+./Builds/build-macos12-unsigned.sh
+```
+
+Generated artifacts:
+- `Builds/output-macos12/Pearcleaner.app`
+- `Builds/output-macos12/Pearcleaner-macos12-unsigned.zip`
+- `Builds/output-macos12/Pearcleaner-macos12-unsigned.dmg`
 </details>
 
 ## Translations

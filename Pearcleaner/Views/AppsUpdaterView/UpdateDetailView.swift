@@ -55,7 +55,7 @@ struct UpdateDetailView: View {
         guard let app = app, app.source == .appStore, let foundRegion = app.foundInRegion else {
             return false
         }
-        let primaryRegion = Locale.autoupdatingCurrent.region?.identifier ?? "US"
+        let primaryRegion = currentRegionIdentifier()
         return foundRegion != primaryRegion
     }
 
