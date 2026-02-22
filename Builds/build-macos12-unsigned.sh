@@ -8,8 +8,8 @@ TARGET="Pearcleaner"
 
 BUILD_ROOT="${BUILD_ROOT:-$REPO_ROOT/.build-macos12}"
 OUTPUT_DIR="${OUTPUT_DIR:-$REPO_ROOT/Builds/output-macos12}"
-DERIVED_DATA_PATH="$BUILD_ROOT/DerivedData"
-APP_PATH="$DERIVED_DATA_PATH/Build/Products/Release/Pearcleaner.app"
+PRODUCTS_DIR="$BUILD_ROOT/Products"
+APP_PATH="$PRODUCTS_DIR/Pearcleaner.app"
 ZIP_PATH="$OUTPUT_DIR/Pearcleaner-macos12-unsigned.zip"
 DMG_PATH="$OUTPUT_DIR/Pearcleaner-macos12-unsigned.dmg"
 
@@ -19,7 +19,7 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
 fi
 
 mkdir -p "$BUILD_ROOT" "$OUTPUT_DIR"
-rm -rf "$DERIVED_DATA_PATH" "$OUTPUT_DIR/Pearcleaner.app" "$ZIP_PATH" "$DMG_PATH"
+rm -rf "$PRODUCTS_DIR" "$OUTPUT_DIR/Pearcleaner.app" "$ZIP_PATH" "$DMG_PATH"
 
 xcodebuild \
   -project "$PROJECT_PATH" \
@@ -30,12 +30,12 @@ xcodebuild \
   -target "$TARGET" \
   -configuration Release \
   -destination "generic/platform=macOS" \
-  -derivedDataPath "$DERIVED_DATA_PATH" \
   clean build \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   ENABLE_HARDENED_RUNTIME=NO \
-  MACOSX_DEPLOYMENT_TARGET=12.0
+  MACOSX_DEPLOYMENT_TARGET=12.0 \
+  CONFIGURATION_BUILD_DIR="$PRODUCTS_DIR"
 
 cp -R "$APP_PATH" "$OUTPUT_DIR/Pearcleaner.app"
 
