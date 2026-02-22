@@ -348,8 +348,8 @@ struct FileSearchView: View {
                         deleteSelectedItems()
                     }
                 }
-                .contextMenu(forSelectionType: FileSearchResult.ID.self) { items in
-                    if let firstId = items.first,
+                .contextMenu {
+                    if let firstId = selectedResults.first,
                        let result = results.first(where: { $0.id == firstId }) {
                         Button("Rename") {
                             selectedResults.removeAll()

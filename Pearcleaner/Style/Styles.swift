@@ -592,15 +592,7 @@ struct TahoeToolbarItem<Content: View>: ToolbarContent {
     @ViewBuilder let content: () -> Content
 
     var body: some ToolbarContent {
-        if isGroup {
-            ToolbarItemGroup(placement: placement) { content() }
-        } else {
-            if let id {
-                ToolbarItem(id: id, placement: placement) { content() }
-            } else {
-                ToolbarItem(placement: placement) { content() }
-            }
-        }
+        ToolbarItemGroup(placement: placement) { content() }
     }
 }
 
@@ -703,14 +695,32 @@ extension View {
 // MARK: - macOS 12 compatibility helpers
 
 @available(macOS, introduced: 10.15, obsoleted: 13.0)
+enum PCScrollIndicatorVisibility {
+    case automatic
+    case visible
+    case hidden
+    case never
+}
+
+@available(macOS, introduced: 10.15, obsoleted: 13.0)
+enum PCToolbarPlacement {
+    case windowToolbar
+}
+
+@available(macOS, introduced: 10.15, obsoleted: 13.0)
+enum PCWindowResizability {
+    case contentMinSize
+}
+
+@available(macOS, introduced: 10.15, obsoleted: 13.0)
 extension View {
     @ViewBuilder
-    func scrollIndicators(_ visibility: ScrollIndicatorVisibility, axes: Axis.Set = [.vertical]) -> some View {
+    func scrollIndicators(_ visibility: PCScrollIndicatorVisibility, axes: Axis.Set = [.vertical]) -> some View {
         self
     }
 
     @ViewBuilder
-    func toolbarBackground(_ visibility: Visibility, for bars: SwiftUI.ToolbarPlacement) -> some View {
+    func toolbarBackground(_ visibility: Visibility, for bars: PCToolbarPlacement) -> some View {
         self
     }
 
@@ -733,6 +743,16 @@ extension View {
     func monospaced(_ isActive: Bool = true) -> some View {
         self
     }
+
+    @ViewBuilder
+    func strikethrough(_ active: Bool = true, color: Color? = nil) -> some View {
+        self
+    }
+
+    @ViewBuilder
+    func underline(_ active: Bool = true, color: Color? = nil) -> some View {
+        self
+    }
 }
 
 @available(macOS, introduced: 10.15, obsoleted: 13.0)
@@ -748,7 +768,7 @@ extension Text {
 
 @available(macOS, introduced: 10.15, obsoleted: 13.0)
 extension Scene {
-    func windowResizability(_ resizability: WindowResizability) -> some Scene {
+    func windowResizability(_ resizability: PCWindowResizability) -> some Scene {
         self
     }
 }
