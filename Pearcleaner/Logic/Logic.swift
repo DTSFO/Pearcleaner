@@ -1366,6 +1366,11 @@ func uninstallPearcleaner(appState: AppState, locations: Locations) {
 
 // --- Load Plist file with SMAppService ---
 func launchctl(load: Bool, completion: @escaping () -> Void = {}) {
+    guard #available(macOS 13.0, *) else {
+        completion()
+        return
+    }
+
     let service = SMAppService.agent(plistName: "com.alienator88.PearcleanerSentinel.plist")
 
     if load {

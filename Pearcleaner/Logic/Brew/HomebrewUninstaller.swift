@@ -472,6 +472,10 @@ class HomebrewUninstaller {
     }
 
     private func handleLoginItem(_ value: String) async throws {
+        guard #available(macOS 13.0, *) else {
+            return
+        }
+
         // Unregister using SMAppService
         let service = SMAppService.loginItem(identifier: value)
 

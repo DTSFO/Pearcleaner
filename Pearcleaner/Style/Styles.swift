@@ -593,27 +593,12 @@ struct TahoeToolbarItem<Content: View>: ToolbarContent {
 
     var body: some ToolbarContent {
         if isGroup {
-            if #available(macOS 26.0, *) {
-                ToolbarItemGroup(placement: placement) { content() }
-                    .sharedBackgroundVisibility(.hidden)
-            } else {
-                ToolbarItemGroup(placement: placement) { content() }
-            }
+            ToolbarItemGroup(placement: placement) { content() }
         } else {
-            if #available(macOS 26.0, *) {
-                if let id {
-                    ToolbarItem(id: id, placement: placement) { content() }
-                        .sharedBackgroundVisibility(.hidden)
-                } else {
-                    ToolbarItem(placement: placement) { content() }
-                        .sharedBackgroundVisibility(.hidden)
-                }
+            if let id {
+                ToolbarItem(id: id, placement: placement) { content() }
             } else {
-                if let id {
-                    ToolbarItem(id: id, placement: placement) { content() }
-                } else {
-                    ToolbarItem(placement: placement) { content() }
-                }
+                ToolbarItem(placement: placement) { content() }
             }
         }
     }
@@ -624,13 +609,7 @@ struct ifGlassAvailable: ViewModifier {
     @AppStorage("settings.general.glassEffect") private var glassEffect: String = "Regular"
 
     func body(content: Content) -> some View {
-        if #available(macOS 26.0, *) {
-            content
-                .glassEffect(glassEffect == "Regular" ? .regular : .clear, in: .rect(cornerRadius: 20))
-        }
-        else {
-            content
-        }
+        content
     }
 }
 
@@ -647,19 +626,13 @@ struct ifGlassAvailableMain: ViewModifier {
     @Environment(\.colorScheme) var colorScheme
 
     func body(content: Content) -> some View {
-        if #available(macOS 26.0, *) {
-            content
-                .glassEffect(glassEffect == "Regular" ? .regular : .clear, in: .rect(cornerRadius: 20))
-        }
-        else {
-            content
-                .background(backgroundView(color: ThemeColors.shared(for: colorScheme).secondaryBG, glass: glass))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(ThemeColors.shared(for: colorScheme).primaryText.opacity(0.2), lineWidth: 1)
-                }
-        }
+        content
+            .background(backgroundView(color: ThemeColors.shared(for: colorScheme).secondaryBG, glass: glass))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(ThemeColors.shared(for: colorScheme).primaryText.opacity(0.2), lineWidth: 1)
+            }
     }
 }
 
@@ -675,25 +648,13 @@ struct ifGlassAvailableSidebar: ViewModifier {
     @AppStorage("settings.general.glassEffect") private var glassEffect: String = "Regular"
 
     func body(content: Content) -> some View {
-        if #available(macOS 26.0, *) {
-            content
-                .background(.ultraThinMaterial.opacity(glassEffect == "Regular" ? 0 : 0.7))
-                .glassEffect(glassEffect == "Regular" ? .regular : .clear, in: .rect(cornerRadius: 20))
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(ThemeColors.shared(for: colorScheme).primaryText.opacity(0.2), lineWidth: colorScheme == .light ? 1 : 0)
-                }
-        }
-        else {
-            content
-                .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(ThemeColors.shared(for: colorScheme).primaryText.opacity(0.2), lineWidth: 1)
-                }
-        }
+        content
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(ThemeColors.shared(for: colorScheme).primaryText.opacity(0.2), lineWidth: 1)
+            }
     }
 }
 
@@ -736,6 +697,67 @@ extension View {
     /// Helper to conditionally apply modifiers
     func apply<Content: View>(@ViewBuilder _ transform: (Self) -> Content) -> Content {
         transform(self)
+    }
+}
+
+// MARK: - macOS 12 compatibility helpers
+
+@available(macOS, introduced: 10.15, obsoleted: 13.0)
+extension View {
+    @ViewBuilder
+    func scrollIndicators(_ visibility: ScrollIndicatorVisibility, axes: Axis.Set = [.vertical]) -> some View {
+        self
+    }
+
+    @ViewBuilder
+    func toolbarBackground(_ visibility: Visibility, for bars: SwiftUI.ToolbarPlacement) -> some View {
+        self
+    }
+
+    @ViewBuilder
+    func fontWeight(_ weight: Font.Weight?) -> some View {
+        self
+    }
+
+    @ViewBuilder
+    func italic(_ isActive: Bool = true) -> some View {
+        self
+    }
+
+    @ViewBuilder
+    func bold(_ isActive: Bool = true) -> some View {
+        self
+    }
+
+    @ViewBuilder
+    func monospaced(_ isActive: Bool = true) -> some View {
+        self
+    }
+}
+
+@available(macOS, introduced: 10.15, obsoleted: 13.0)
+extension Text {
+    func strikethrough(_ active: Bool = true, pattern: Text.LineStyle.Pattern, color: Color? = nil) -> Text {
+        strikethrough(active, color: color)
+    }
+
+    func underline(_ active: Bool = true, pattern: Text.LineStyle.Pattern, color: Color? = nil) -> Text {
+        underline(active, color: color)
+    }
+}
+
+@available(macOS, introduced: 10.15, obsoleted: 13.0)
+extension Scene {
+    func windowResizability(_ resizability: WindowResizability) -> some Scene {
+        self
+    }
+}
+
+func currentRegionIdentifier() -> String {
+    if #available(macOS 13.0, *) {
+        return Locale.autoupdatingCurrent.region?.identifier ?? "US"
+    } else {
+        return Locale.autoupdatingCurrent.regionCode ?? "US"
     }
 }
 

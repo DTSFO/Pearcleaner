@@ -54,6 +54,15 @@ class HelperToolManager: ObservableObject {
 
     // Function to manage the helper tool installation/uninstallation
     func manageHelperTool(action: HelperToolAction = .none) async {
+        guard #available(macOS 13.0, *) else {
+            updateOnMain {
+                self.isHelperToolInstalled = false
+                self.isInitialCheckComplete = true
+                self.message = String(localized: "Privileged helper requires macOS 13 or newer.")
+            }
+            return
+        }
+
         let plistName = "\(helperToolIdentifier).plist"
         let service = SMAppService.daemon(plistName: plistName)
         var occurredError: NSError?
@@ -163,7 +172,9 @@ class HelperToolManager: ObservableObject {
 
     // Function to open Settings > Login Items
     func openSMSettings() {
-        SMAppService.openSystemSettingsLoginItems()
+        if #available(macOS 13.0, *) {
+            SMAppService.openSystemSettingsLoginItems()
+        }
     }
 
     // Function to run privileged commands
@@ -249,6 +260,7 @@ class HelperToolManager: ObservableObject {
 
 
     // Helper to update helper status messages
+    @available(macOS 13.0, *)
     func updateStatusMessages(with service: SMAppService, occurredError: NSError?) async {
         if let nsError = occurredError {
             switch nsError.code {

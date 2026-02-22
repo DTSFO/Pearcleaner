@@ -8,6 +8,19 @@
 import Foundation
 import AlinFoundation
 
+private func firstRegexCapture(in text: String, pattern: String) -> String? {
+    guard let regex = try? NSRegularExpression(pattern: pattern) else {
+        return nil
+    }
+    let range = NSRange(text.startIndex..., in: text)
+    guard let match = regex.firstMatch(in: text, range: range),
+          match.numberOfRanges > 1,
+          let captureRange = Range(match.range(at: 1), in: text) else {
+        return nil
+    }
+    return String(text[captureRange])
+}
+
 enum HomebrewError: Error, LocalizedError {
     case brewNotFound
     case commandFailed(String)
@@ -180,13 +193,9 @@ struct PkgVersion: Comparable {
     /// Parse version string with optional revision suffix
     /// Examples: "12.2.0_1" → ("12.2.0", 1), "12.2.0" → ("12.2.0", 0)
     init(_ versionString: String) {
-        // Regex pattern matches Homebrew's REGEX but with Swift-compatible anchors
-        // Group 1: version (non-greedy), Group 2: optional revision after underscore
-        // Use ^ and $ instead of Ruby's \A and \z
-        let regex = /^(.+?)(?:_(\d+))?$/
-        if let match = versionString.firstMatch(of: regex) {
-            self.version = String(match.1)
-            self.revision = match.2.map { Int($0) ?? 0 } ?? 0
+        if let versionCapture = firstRegexCapture(in: versionString, pattern: #"^(.+?)(?:_(\d+))?$"#) {
+            self.version = versionCapture
+            self.revision = Int(firstRegexCapture(in: versionString, pattern: #"^.+?_(\d+)$"#) ?? "0") ?? 0
         } else {
             // Fallback: treat entire string as version with revision 0
             self.version = versionString
@@ -603,10 +612,8 @@ class HomebrewController: ObservableObject {
         let rbPath = "\(cellarPath)/\(latestVersion)/.brew/\(name).rb"
         var desc = "No description available"
         if let rbContent = try? String(contentsOfFile: rbPath) {
-            // Parse desc with regex: desc "..."
-            let descRegex = /desc "([^"]+)"/
-            if let match = rbContent.firstMatch(of: descRegex) {
-                desc = String(match.1)
+            if let parsedDesc = firstRegexCapture(in: rbContent, pattern: #"desc "([^"]+)""#) {
+                desc = parsedDesc
             }
         }
 
@@ -693,16 +700,12 @@ class HomebrewController: ObservableObject {
         var displayName: String? = nil
         var desc = "No description available"
         if let fileContent = try? String(contentsOfFile: caskFilePath) {
-            // Extract name (display name) - casks can have multiple names, take first
-            let nameRegex = /name "([^"]+)"/
-            if let match = fileContent.firstMatch(of: nameRegex) {
-                displayName = String(match.1)
+            if let parsedName = firstRegexCapture(in: fileContent, pattern: #"name "([^"]+)""#) {
+                displayName = parsedName
             }
 
-            // Extract description
-            let descRegex = /desc "([^"]+)"/
-            if let match = fileContent.firstMatch(of: descRegex) {
-                desc = String(match.1)
+            if let parsedDesc = firstRegexCapture(in: fileContent, pattern: #"desc "([^"]+)""#) {
+                desc = parsedDesc
             }
         }
 
@@ -1506,17 +1509,14 @@ class HomebrewController: ObservableObject {
 
                 // Match standalone version declarations: version "X.Y.Z"
                 // Pattern ensures it's on its own line (Ruby requirement)
-                let versionRegex = /^version\s+"([^"]+)"$/
-                if let match = trimmed.firstMatch(of: versionRegex) {
+                if let parsedVersion = firstRegexCapture(in: trimmed, pattern: #"^version\s+"([^"]+)"$"#) {
                     // Strip revision suffix for casks to match installed version format
-                    tapVersion = package.isCask ? String(match.1).stripBrewRevisionSuffix() : String(match.1)
+                    tapVersion = package.isCask ? parsedVersion.stripBrewRevisionSuffix() : parsedVersion
                     continue  // Keep searching for revision
                 }
 
-                // Match standalone revision declarations: revision N
-                let revisionRegex = /^revision\s+(\d+)$/
-                if let match = trimmed.firstMatch(of: revisionRegex) {
-                    tapRevision = Int(match.1) ?? 0
+                if let parsedRevision = firstRegexCapture(in: trimmed, pattern: #"^revision\s+(\d+)$"#) {
+                    tapRevision = Int(parsedRevision) ?? 0
                 }
             }
 
