@@ -1,0 +1,31 @@
+name: Build macOS 12 Unsigned
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - macos12-support
+    paths:
+      - "Pearcleaner/**"
+      - "Pearcleaner.xcodeproj/**"
+      - "Builds/build-macos12-unsigned.sh"
+      - ".github/workflows/build-macos12-unsigned.yml"
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build unsigned app and dmg
+        run: ./Builds/build-macos12-unsigned.sh
+
+      - name: Upload macOS 12 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pearcleaner-macos12-unsigned
+          path: |
+            Builds/output-macos12/Pearcleaner.app
+            Builds/output-macos12/Pearcleaner-macos12-unsigned.zip
+            Builds/output-macos12/Pearcleaner-macos12-unsigned.dmg
