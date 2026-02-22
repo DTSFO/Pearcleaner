@@ -1206,7 +1206,7 @@
 			repositoryURL = "https://github.com/DTSFO/AlinFoundation";
 			requirement = {
 				kind = revision;
-				revision = 8c0ec974fd634ebf0db7638addf407431f7af377;
+				revision = 8c0ec974821f8fe2c5de2650d5fab5ffffb8631c;
 			};
 		};
 		C7A2A4D72DDB95C4006E05E4 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
